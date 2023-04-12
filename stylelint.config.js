@@ -8,10 +8,10 @@ module.exports = {
   // add your custom config here
   // https://stylelint.io/user-guide/configuration
   rules: {
-    "property-no-vendor-prefix": false,
-    "selector-pseudo-element-colon-notation": false,
-    "selector-class-pattern": false,
-    "rule-empty-line-before": false,
-    "font-family-name-quotes": false,
+    "property-no-vendor-prefix": null,
+    "selector-pseudo-element-colon-notation": null,
+    "selector-class-pattern": null,
+    "rule-empty-line-before": null,
+    "font-family-name-quotes": null,
   },
 };
