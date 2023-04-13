@@ -168,6 +168,7 @@
   &__options-container {
     position: relative;
     width: 72.75px;
+
     &__important-icon {
       position: absolute;
       top: 5%;
@@ -183,9 +184,35 @@
         fill: $yellow;
       }
 
-      path.unimportant{
+      path.unimportant {
+        fill: $gray-500;
+      }
+    }
+
+    &__delete-icon {
+      position: absolute;
+      top: 5%;
+      left: 54%;
+      width: 17px;
+      height: 19px;
+
+      &:hover {
+        cursor: pointer;
+
+        path {
+          fill: #FF4E66;
+        }
+      }
+
+      path {
         fill: $gray-500;
       }
     }
   }
 }
+
+/**
+* Dialogs
+*/
+
+

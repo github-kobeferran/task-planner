@@ -56,7 +56,7 @@
       />
     </div>
 
-    <ul class="list-group my-3 py-2">
+    <ul class="list-group my-1">
       <TaskItem
         v-for="task in filtered"
         :key="task.id"
@@ -71,6 +71,8 @@
       :placeholder-text="'Add a task'"
       :class-list="['mt-auto', 'mb-3']"
     />
+
+
   </div>
 </template>
 
@@ -149,12 +151,9 @@ export default {
       }
     },
     handleDelete(task) {
-      if (window.confirm("Sure you want to delete?")) {
-        this.deleteTask(task);
-      } else {
-        //
-      }
+      this.deleteTask(task)
     },
+
   },
 };
 </script>
