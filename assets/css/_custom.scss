@@ -1,1 +1,105 @@
 // Write your custom styling here
+/**
+* global
+**/
+
+/**
+* welcome page
+*/
+.hero-section {
+  color: $gray-900;
+
+  &__title {
+    @include font("Inter", 500, 40px, "left", 0, 1);
+  }
+
+  &__description {
+    @include font("Inter", 400, 18px, "center", 0, 1);
+    margin-bottom: 70px;
+    width: 350px;
+  }
+}
+
+/**
+* TaskTitleInput Component
+*/
+
+.task-title-input {
+  width: 100%;
+  position: relative;
+
+  input {
+    @include font("Inter", 400, 16px, "left", 0, 1);
+    width: 100%;
+    background: $gray-100;
+    margin: 0 0 9px 0;
+    padding: 10px 10px 10px 54.26px;
+    box-sizing: border-box;
+    border: none;
+
+    &::placeholder {
+      color: $gray-400;
+    }
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+  }
+
+  &--icon {
+    width: 22.56px;
+    height: 22.56px;
+    position: absolute;
+    top: 25%;
+    left: 21px;
+    transform: translateY(-50%);
+  }
+
+  &__enter-prompt {
+    color: $gray-400;
+    @include font("Inter", 400, 14px, "left", 0, 1);
+
+    &--enter {
+      color: $pink;
+    }
+  }
+}
+
+/**
+* TaskList Component
+*/
+.task-list {
+  color: $gray-900;
+
+  &__title {
+    @include font("Inter", 500, 32px, "left", 0, 1);
+  }
+}
+
+.search-input {
+  width: 100%;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 1px solid #e6e6e6;
+  border-radius: 100px;
+  @include font("Inter", 400, 16px, "left", 0, 1);
+  padding: 10px 10px 10px 54.26px;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $gray-400;
+  }
+
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  &--icon {
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    top: 30%;
+    left: 18.36px;
+  }
+}

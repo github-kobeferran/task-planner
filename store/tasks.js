@@ -1,11 +1,16 @@
+const initialTask = () => ({
+  title: "",
+  assignee: null,
+  is_done: null,
+  is_important: null,
+  sort: null,
+});
+
 export const state = () => ({
   tasks: [],
-  task: {
-    title: "",
-    assignee: null,
-    is_done: null,
-    is_important: null,
-    sort: null,
+  task: initialTask(),
+  serverQuery: {
+    search: "",
   },
 });
 
@@ -16,6 +21,9 @@ export const getters = {
   getTask(state) {
     return state.task;
   },
+  getServerQuery(state) {
+    return state.serverQuery;
+  },
 };
 
 export const mutations = {
@@ -24,6 +32,7 @@ export const mutations = {
   },
   setTask(state, updatedTask) {
     const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
+
     if (index !== -1) {
       state.tasks.splice(index, 1, updatedTask);
     }
@@ -37,14 +46,30 @@ export const mutations = {
   deleteTask(state, task) {
     state.tasks.splice(state.tasks.indexOf(task), 1);
   },
+  resetTask(state) {
+    state.task = initialTask();
+  },
+  filterByImportant(state) {
+    state.tasks = state.tasks.filter((task) => task.is_important);
+  },
+  filterByDone(state) {
+    state.tasks = state.tasks.filter((task) => task.is_done);
+  },
+  setServerQuery(state, { key, value }) {
+    state.serverQuery[key] = value;
+  },
 };
 
 export const actions = {
-  async fetchTasks({ commit }) {
+  async fetchTasks({ state, commit }) {
     try {
-      const { data } = await this.$axios.get("/tasks");
-
+      const { data } = await this.$axios.get("/tasks", {
+        params: {
+          search: state.serverQuery.search,
+        },
+      });
       commit("setTasks", data);
+      return;
     } catch (e) {
       console.error(e);
     }
@@ -72,9 +97,10 @@ export const actions = {
   },
   async markAsDone({ commit }, task) {
     try {
-      const updatedTask = await this.$axios.put("/tasks/" + task.id, {
+      const { data: updatedTask } = await this.$axios.put("/tasks/" + task.id, {
         is_done: true,
       });
+
       if (updatedTask) {
         commit("setTask", updatedTask);
       }
@@ -84,8 +110,20 @@ export const actions = {
   },
   async undoTask({ commit }, task) {
     try {
-      const updatedTask = await this.$axios.put("/tasks/" + task.id, {
+      const { data: updatedTask } = await this.$axios.put("/tasks/" + task.id, {
         is_done: false,
+      });
+      if (updatedTask) {
+        commit("setTask", updatedTask);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
+  async markImportant({ commit }, task) {
+    try {
+      const { data: updatedTask } = await this.$axios.put("/tasks/" + task.id, {
+        is_important: !task.is_important,
       });
       if (updatedTask) {
         commit("setTask", updatedTask);
@@ -96,5 +134,27 @@ export const actions = {
   },
   updateTaskDetail({ commit }, { key, value }) {
     commit("updateTaskDetail", { key, value });
+  },
+  resetTask({ commit }) {
+    commit("resetTask");
+  },
+  filterTasks({ commit, dispatch }, filterBy) {
+    switch (filterBy) {
+      case "important":
+        dispatch("fetchTasks");
+        commit("filterByImportant");
+        break;
+      case "done":
+        dispatch("fetchTasks");
+        commit("filterByDone");
+        break;
+      case "all":
+      default:
+        dispatch("fetchTasks");
+        break;
+    }
+  },
+  setServerQuery({ commit }, payload) {
+    commit("setServerQuery", payload);
   },
 };

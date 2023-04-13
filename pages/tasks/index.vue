@@ -1,12 +1,7 @@
 <template>
-  <div>
-    <TaskList/>
-  </div>
+  <TaskList />
 </template>
 
 <script>
-export default {
-
-}
+export default {};
 </script>
-
