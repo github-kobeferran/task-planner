@@ -31,6 +31,7 @@
   input {
     @include font("Inter", 400, 16px, "left", 0, 1);
     width: 100%;
+    height: 57px;
     background: $gray-100;
     margin: 0 0 9px 0;
     padding: 10px 10px 10px 54.26px;
@@ -48,12 +49,16 @@
   }
 
   &--icon {
-    width: 22.56px;
-    height: 22.56px;
+    width: 23px;
+    height: 23px;
     position: absolute;
-    top: 25%;
+    top: 29%;
     left: 21px;
     transform: translateY(-50%);
+
+    path {
+      fill: $gray-400;
+    }
   }
 
   &__enter-prompt {
@@ -79,6 +84,7 @@
 
 .search-input {
   width: 100%;
+  height: 39px;
   background: #ffffff 0% 0% no-repeat padding-box;
   border: 1px solid #e6e6e6;
   border-radius: 100px;
@@ -101,5 +107,85 @@
     height: 17px;
     top: 30%;
     left: 18.36px;
+
+    path {
+      fill: $gray-400;
+    }
+  }
+}
+
+/**
+* TaskItem
+*/
+
+.task-item {
+  background: $white;
+  box-shadow: 0px 3px 6px #00000024;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  opacity: 1;
+
+  @include font("Inter", 400, 16px, "left", 0, 1);
+  padding: 10px;
+
+  &__check-container {
+    position: relative;
+    width: 57px;
+
+    &__icon {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      width: 21px;
+      height: 21px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      path.done {
+        fill: $gray-600;
+      }
+
+      path.pending {
+        fill: $gray-400;
+      }
+    }
+  }
+
+  &__title-container {
+    &__title {
+      @include font("Inter", 400, 16px, "left", 0, 1);
+      color: $gray-900;
+
+      &--done {
+        color: $gray-500;
+        text-decoration: line-through;
+      }
+    }
+  }
+
+  &__options-container {
+    position: relative;
+    width: 72.75px;
+    &__important-icon {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      width: 20px;
+      height: 19px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      path.important {
+        fill: $yellow;
+      }
+
+      path.unimportant{
+        fill: $gray-500;
+      }
+    }
   }
 }
