@@ -1,5 +1,12 @@
 <template>
-  <li class="list-group-item task-item d-flex my-2">
+  <li
+    class="list-group-item task-item d-flex my-2 drop-zone"
+    :draggable="true"
+    @dragstart="startDrag($event, task)"
+    @drop="onDrop($event, task.id)"
+    @dragover.prevent
+    @dragenter.prevent
+  >
     <div class="col task-item__check-container">
       <svg
         class="task-item__check-container__icon"
@@ -111,7 +118,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions("tasks", [ 'setTask' ]),
+    ...mapActions("tasks", ["setTask", "moveTask"]),
     ...mapActions("users", {
       setShowDropDown: "setShowDropDown",
       setUserServerQuery: "setServerQuery",
@@ -137,7 +144,16 @@ export default {
         clientX: e.clientX,
         clientY: e.clientY,
       });
-      this.setTask(task)
+      this.setTask(task);
+    },
+    startDrag(evt, task) {
+      evt.dataTransfer.dropEffect = "move";
+      evt.dataTransfer.effectAllowed = "move";
+      evt.dataTransfer.setData("draggedTaskID", task.id);
+    },
+    onDrop(evt, droppedTaskID) {
+      const draggedTaskID = evt.dataTransfer.getData("draggedTaskID");
+      this.moveTask({droppedTaskID, draggedTaskID})
     },
   },
 };

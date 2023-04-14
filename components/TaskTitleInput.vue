@@ -15,8 +15,7 @@
       type="text"
       class="task-title-input__input"
       :placeholder="placeholderText"
-      :value="task.title"
-      @input="editTaskTitle"
+      v-model="titleInputValue"
       @keypress.enter="submit"
       @focus="onInputFocus"
       @blur="onInputBlur"
@@ -52,22 +51,23 @@ export default {
   data() {
     return {
       inputFocused: false,
+      titleInputValue: "",
     };
   },
   computed: {
     ...mapGetters("tasks", {
       task: "getTask",
     }),
-    placeholderText(){
-      if(this.placeholderProp){
-        return this.placeholderProp
+    placeholderText() {
+      if (this.placeholderProp) {
+        return this.placeholderProp;
       }
 
-      if(this.inputFocused){
-        return 'Try typing "Submit report by Friday 3PM"'
+      if (this.inputFocused) {
+        return 'Try typing "Submit report by Friday 3PM"';
       }
 
-      return "What's your plan for today?"
+      return "What's your plan for today?";
     },
     computedClasses() {
       if (!this.classList) {
@@ -84,27 +84,21 @@ export default {
     window.removeEventListener("keyup", this.handleKeyUp);
   },
   methods: {
-    ...mapActions("tasks", ["addTask", "updateTaskDetail", "resetTask"]),
+    ...mapActions("tasks", ["storeTask", "resetTask"]),
     async submit() {
-      if (!this.task || !this.task.title) {
+      if (!this.titleInputValue) {
         return;
       }
 
-      const res = await this.addTask(this.task);
+      const res = await this.storeTask(this.titleInputValue);
       if (res) {
         this.resetTask();
         this.$router.push("/tasks");
+        this.titleInputValue = ''
       }
-    },
-    editTaskTitle(e) {
-      this.updateTaskDetail({
-        key: "title",
-        value: e.target.value,
-      });
     },
     onInputFocus() {
       this.inputFocused = true;
-
     },
     onInputBlur() {
       this.inputFocused = false;

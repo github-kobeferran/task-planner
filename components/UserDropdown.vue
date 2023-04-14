@@ -127,7 +127,7 @@ export default {
         self.fetchUsers({
           query: self.searchValue,
         });
-      }, 1000);
+      }, 300);
     },
     handleAvatarClicked(e) {
       // if(this.showUserDropDown){
