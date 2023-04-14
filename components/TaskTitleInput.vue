@@ -11,9 +11,9 @@
     </svg>
 
     <input
-      type="text"
-      class="task-title-input__input "
       ref="task-title-input"
+      type="text"
+      class="task-title-input__input"
       :placeholder="placeholderText"
       :value="task.title"
       @input="editTaskTitle"
@@ -23,9 +23,12 @@
     />
     <p class="task-title-input__enter-prompt">
       Press
-      <span :class="{
-        'task-title-input__enter-prompt--enter': !inputFocused
-      }">enter</span>
+      <span
+        :class="{
+          'task-title-input__enter-prompt--enter': !inputFocused,
+        }"
+        >enter</span
+      >
       to add task
     </p>
   </div>
@@ -36,41 +39,58 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   props: {
-    placeholderText: {
+    placeholderProp: {
       type: String,
-      default: "What's your plan for today?",
+      required: false,
     },
-   classList: {
+    classList: {
       type: Array,
-      required: false
-    }
+      default: () => [],
+      required: false,
+    },
   },
-  data(){
+  data() {
     return {
       inputFocused: false,
-    }
-  },
-  mounted() {
-    window.addEventListener('keyup', this.handleKeyUp);
-  },
-  beforeDestroy() {
-    window.removeEventListener('keyup', this.handleKeyUp);
+    };
   },
   computed: {
     ...mapGetters("tasks", {
       task: "getTask",
     }),
-    computedClasses() {
-      if(!this.classList){
-        return ''
+    placeholderText(){
+      if(this.placeholderProp){
+        return this.placeholderProp
       }
 
-      return this.classList.join(' ');
-    }
+      if(this.inputFocused){
+        return 'Try typing "Submit report by Friday 3PM"'
+      }
+
+      return "What's your plan for today?"
+
+    },
+    computedClasses() {
+      if (!this.classList) {
+        return "";
+      }
+
+      return this.classList.join(" ");
+    },
+  },
+  mounted() {
+    window.addEventListener("keyup", this.handleKeyUp);
+  },
+  beforeDestroy() {
+    window.removeEventListener("keyup", this.handleKeyUp);
   },
   methods: {
     ...mapActions("tasks", ["addTask", "updateTaskDetail", "resetTask"]),
     async submit() {
+      if (!this.task || !this.task.title) {
+        return;
+      }
+
       const res = await this.addTask(this.task);
       if (res) {
         this.resetTask();
@@ -83,24 +103,25 @@ export default {
         value: e.target.value,
       });
     },
-    onInputFocus(){
+    onInputFocus() {
       this.inputFocused = true;
+
     },
-    onInputBlur(){
+    onInputBlur() {
       this.inputFocused = false;
     },
     handleKeyUp(event) {
-      if (event.keyCode === 13) { // Enter key
-        this.$refs['task-title-input'].focus();
+      if (event.keyCode === 13) {
+        // Enter key
+        this.$refs["task-title-input"].focus();
       }
 
-      if (event.keyCode === 27) { // ESC key
+      if (event.keyCode === 27) {
+        // ESC key
         this.resetTask();
-        this.$refs['task-title-input'].blur();
+        this.$refs["task-title-input"].blur();
       }
-    }
+    },
   },
 };
 </script>
-
-

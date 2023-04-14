@@ -1,43 +1,43 @@
 <template>
-  <div class="task-list container d-flex flex-column">
+  <div class="task-list container d-flex flex-column p-0">
     <div class="row mt-5">
       <div class="col">
         <h1 class="task-list__title">Task Planner</h1>
       </div>
       <div class="col-4">
-        <div class="d-flex">
+        <div class="d-flex flex-row-reverse">
           <button
-            class="button"
+            class="filter-button order-3"
             :class="{
-              'button--active': filterBy == 'all',
+              'filter-button--active': filterBy == 'all',
             }"
             @click="changeFilter('all')"
           >
             All
           </button>
           <button
-            class="button"
+            class="filter-button order-2"
             :class="{
-              'button--active': filterBy == 'important',
+              'filter-button--active': filterBy == 'important',
             }"
             @click="changeFilter('important')"
           >
-            Important
+            {{ importantCount }} Important
           </button>
           <button
-            class="button"
+            class="filter-button order-1"
             :class="{
-              'button--active': filterBy == 'done',
+              'filter-button--active': filterBy == 'done',
             }"
             @click="changeFilter('done')"
           >
-            Done
+            {{ doneCount }} Done
           </button>
         </div>
       </div>
     </div>
     <!-- search input -->
-    <div class="position-relative">
+    <div class="position-relative my-4">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"
@@ -66,13 +66,11 @@
       />
     </ul>
 
-
     <TaskTitleInput
-      :placeholder-text="'Add a task'"
+      :placeholder-prop="'Add a task'"
       :class-list="['mt-auto', 'mb-3']"
+
     />
-
-
   </div>
 </template>
 
@@ -89,6 +87,7 @@ export default {
   },
   async fetch() {
     await this.fetchTasks();
+    await this.fetchUsers();
   },
   computed: {
     filtered() {
@@ -102,12 +101,39 @@ export default {
           return this.tasks;
       }
     },
+    importantCount() {
+      const length = this.tasks.filter((task) => task.is_important).length;
+      if (!length || length === 0) {
+        return "";
+      }
+
+      return length;
+    },
+    doneCount() {
+      const length = this.tasks.filter((task) => task.is_done).length;
+      if (!length || length === 0) {
+        return "";
+      }
+
+      return length;
+    },
     ...mapGetters("tasks", {
       tasks: "getTasks",
       serverQuery: "getServerQuery",
     }),
+
   },
   methods: {
+    ...mapActions("tasks", [
+      "fetchTasks",
+      "deleteTask",
+      "markAsDone",
+      "undoTask",
+      "markImportant",
+      "filterTasks",
+      "setServerQuery",
+    ]),
+    ...mapActions('users', ['fetchUsers']),
     changeFilter(filter) {
       this.filterBy = filter;
     },
@@ -128,15 +154,6 @@ export default {
         });
       }, 1000);
     },
-    ...mapActions("tasks", [
-      "fetchTasks",
-      "deleteTask",
-      "markAsDone",
-      "undoTask",
-      "markImportant",
-      "filterTasks",
-      "setServerQuery",
-    ]),
     markTask({ task, markAs }) {
       switch (markAs) {
         case "done":
@@ -151,9 +168,8 @@ export default {
       }
     },
     handleDelete(task) {
-      this.deleteTask(task)
+      this.deleteTask(task);
     },
-
   },
 };
 </script>

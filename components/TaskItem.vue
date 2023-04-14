@@ -1,6 +1,6 @@
 <template>
   <li class="list-group-item task-item d-flex my-2">
-    <div class="task-item__check-container">
+    <div class="col task-item__check-container">
       <svg
         class="task-item__check-container__icon"
         xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +13,7 @@
         "
       >
         <path
-        v-if="task.is_done"
+          v-if="task.is_done"
           class="done"
           d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"
         />
@@ -24,7 +24,7 @@
         />
       </svg>
     </div>
-    <div class="task-item__title-container flex-grow-1">
+    <div class="col-8 col-md-10 task-item__title-container">
       <span
         :class="{
           'task-item__title-container__title--done': task.is_done,
@@ -33,7 +33,8 @@
         >{{ task.title }}</span
       >
     </div>
-    <div class="task-item__options-container d-flex">
+    <div class="col task-item__options-container d-flex">
+      <UserDropdown />
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 576 512"
@@ -86,10 +87,10 @@ export default {
     };
   },
   methods: {
-    emitDelete(){
-      this.$emit('delete', this.task)
-    }
-  }
+    emitDelete() {
+      this.$emit("delete", this.task);
+    },
+  },
 };
 </script>
 
