@@ -30,12 +30,15 @@ export const mutations = {
   setTasks(state, tasks) {
     state.tasks = tasks;
   },
-  setTask(state, updatedTask) {
+  replaceTaskOnList(state, updatedTask) {
     const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
 
     if (index !== -1) {
       state.tasks.splice(index, 1, updatedTask);
     }
+  },
+  setTask(state, task) {
+    state.task = task;
   },
   updateTaskDetail(state, { key, value }) {
     state.task[key] = value;
@@ -49,12 +52,7 @@ export const mutations = {
   resetTask(state) {
     state.task = initialTask();
   },
-  filterByImportant(state) {
-    state.tasks = state.tasks.filter((task) => task.is_important);
-  },
-  filterByDone(state) {
-    state.tasks = state.tasks.filter((task) => task.is_done);
-  },
+
   setServerQuery(state, { key, value }) {
     state.serverQuery[key] = value;
   },
@@ -95,6 +93,19 @@ export const actions = {
       console.error(e);
     }
   },
+  async updateAssignee({ commit }, { task, user }) {
+    try {
+      const { data: updatedTask } = await this.$axios.put("/tasks/" + task.id, {
+        assignee: user,
+      });
+
+      if (updatedTask) {
+        commit("replaceTaskOnList", updatedTask);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
   async markAsDone({ commit }, task) {
     try {
       const { data: updatedTask } = await this.$axios.put("/tasks/" + task.id, {
@@ -102,7 +113,7 @@ export const actions = {
       });
 
       if (updatedTask) {
-        commit("setTask", updatedTask);
+        commit("replaceTaskOnList", updatedTask);
       }
     } catch (e) {
       console.error(e);
@@ -114,7 +125,7 @@ export const actions = {
         is_done: false,
       });
       if (updatedTask) {
-        commit("setTask", updatedTask);
+        commit("replaceTaskOnList", updatedTask);
       }
     } catch (e) {
       console.error(e);
@@ -126,7 +137,7 @@ export const actions = {
         is_important: !task.is_important,
       });
       if (updatedTask) {
-        commit("setTask", updatedTask);
+        commit("replaceTaskOnList", updatedTask);
       }
     } catch (e) {
       console.error(e);
@@ -138,23 +149,10 @@ export const actions = {
   resetTask({ commit }) {
     commit("resetTask");
   },
-  filterTasks({ commit, dispatch }, filterBy) {
-    switch (filterBy) {
-      case "important":
-        dispatch("fetchTasks");
-        commit("filterByImportant");
-        break;
-      case "done":
-        dispatch("fetchTasks");
-        commit("filterByDone");
-        break;
-      case "all":
-      default:
-        dispatch("fetchTasks");
-        break;
-    }
-  },
   setServerQuery({ commit }, payload) {
     commit("setServerQuery", payload);
+  },
+  setTask({ commit }, task) {
+    commit("setTask", task);
   },
 };

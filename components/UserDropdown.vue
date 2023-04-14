@@ -24,15 +24,19 @@
 
     <div class="dropdown__content">
       <ul>
-        <li v-for="user in users" :key="user.id"
-        :class="{
-            'bg-gray-400' : selectedUser && selectedUser.id === user.id
-          }">
+        <li
+          v-for="user in users"
+          :key="user.id"
+          class="assignee-option--unselected"
+          :class="{
+            'bg-gray-400': currentAssigneeId == user.id,
+          }"
+          @click="handleAssigneeSelect(user)"
+        >
           <div class="user-avatar">
             <img :src="user.avatar" alt="User Avatar" />
           </div>
-          <div class="user-name"
-          >{{ user.name }}</div>
+          <div class="user-name">{{ user.name }}</div>
         </li>
       </ul>
     </div>
@@ -57,6 +61,16 @@ export default {
     };
   },
   computed: {
+    currentAssigneeId() {
+      if (!this.task || !this.task.assignee) {
+        return null;
+      }
+
+      return this.task.assignee.id;
+    },
+    ...mapGetters("tasks", {
+      task: "getTask",
+    }),
     ...mapGetters("users", {
       users: "getUsers",
       showDropdown: "getShowDropDown",
@@ -67,7 +81,7 @@ export default {
   },
   watch: {
     showDropdown(val) {
-     if (val) {
+      if (val) {
         this.$nextTick(() => {
           this.$refs.userSearch.focus();
           this.inputIsFocused = true;
@@ -82,13 +96,24 @@ export default {
     },
   },
   methods: {
+    ...mapActions("tasks", ["updateAssignee"]),
     ...mapActions("users", [
       "fetchUsers",
       "setServerQuery",
       "setShowDropDown",
       "setMouseCoordinates",
       "setServerQuery",
+      "setSelectedUser",
+      "updateAsignee",
     ]),
+    handleAssigneeSelect(user) {
+      this.updateAssignee({ task: this.task, user });
+      this.setShowDropDown(false);
+      this.setServerQuery({
+        key: "search",
+        value: "",
+      });
+    },
     search(e) {
       this.setServerQuery({
         key: "search",
@@ -137,8 +162,8 @@ export default {
       ) {
         this.setShowDropDown(false);
         this.setServerQuery({
-          key: 'search',
-          value: '',
+          key: "search",
+          value: "",
         });
       }
     },
@@ -220,5 +245,11 @@ export default {
 .user-name {
   font-size: 14px;
   font-weight: 400;
+}
+
+.assignee-option--unselected {
+  &:hover {
+    background: #c4bcbc;
+  }
 }
 </style>

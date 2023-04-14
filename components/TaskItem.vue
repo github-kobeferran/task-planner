@@ -38,7 +38,7 @@
         <div
           class="avatar"
           tabindex="0"
-          @click="handleAvatarClicked"
+          @click="handleAvatarClicked($event, task)"
         >
           <img :src="avatarSrc" alt="Avatar" />
         </div>
@@ -111,6 +111,7 @@ export default {
     }),
   },
   methods: {
+    ...mapActions("tasks", [ 'setTask' ]),
     ...mapActions("users", {
       setShowDropDown: "setShowDropDown",
       setUserServerQuery: "setServerQuery",
@@ -121,7 +122,7 @@ export default {
     emitDelete() {
       this.$emit("delete", this.task);
     },
-    handleAvatarClicked(e) {
+    handleAvatarClicked(e, task) {
       // if(this.showUserDropDown){
       //   this.setUserServerQuery({
       //     key: 'search',
@@ -136,7 +137,7 @@ export default {
         clientX: e.clientX,
         clientY: e.clientY,
       });
-      this.setSelectedUser(this.task.assignee)
+      this.setTask(task)
     },
   },
 };
