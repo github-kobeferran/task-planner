@@ -87,7 +87,6 @@ export const actions = {
   },
   async deleteTask({ commit }, task) {
     try {
-      console.log(task, "vuex");
       const res = await this.$axios.delete("/tasks/" + task.id);
       if (res) {
         commit("deleteTask", task);

@@ -68,7 +68,6 @@ export default {
       }
 
       return "What's your plan for today?"
-
     },
     computedClasses() {
       if (!this.classList) {

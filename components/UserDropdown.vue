@@ -1,15 +1,38 @@
 <template>
-  <div class="avatar-dropdown">
-    <div class="avatar" @click="showDropdown = !showDropdown">
-      <img :src="imageSrc" alt="Avatar" />
+  <div
+    ref="dropdown"
+    class="dropdown"
+    tabindex="0"
+    v-show="showDropdown"
+    :style="{
+      left: mouseCoordinates.clientX + 'px',
+      top: mouseCoordinates.clientY + 'px',
+    }"
+    @focus="handleFocus"
+  >
+    <div class="dropdown__header">
+      <input
+        ref="userSearch"
+        @blur="inputIsFocused = false"
+        @focus="inputIsFocused = true"
+        :value="serverQuery.search"
+        @keyup="search"
+        type="text"
+        placeholder="Search Team Member"
+      />
     </div>
-    <div class="dropdown" v-show="showDropdown">
+
+    <div class="dropdown__content">
       <ul>
-        <li v-for="user in users" :key="user.id">
+        <li v-for="user in users" :key="user.id"
+        :class="{
+            'bg-gray-400' : selectedUser && selectedUser.id === user.id
+          }">
           <div class="user-avatar">
-            <img :src="user.avatarSrc" alt="User Avatar" />
+            <img :src="user.avatar" alt="User Avatar" />
           </div>
-          <div class="user-name">{{ user.name }}</div>
+          <div class="user-name"
+          >{{ user.name }}</div>
         </li>
       </ul>
     </div>
@@ -17,69 +40,150 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   props: {
-    imageSrc: {
+    avatarImg: {
       type: String,
+      required: false,
       default:
         "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
     },
   },
   data() {
     return {
-      showDropdown: false,
+      inputIsFocused: false,
     };
   },
   computed: {
     ...mapGetters("users", {
       users: "getUsers",
+      showDropdown: "getShowDropDown",
+      selectedUser: "getSelectedUser",
+      mouseCoordinates: "getMouseCoordinates",
+      serverQuery: "getServerQuery",
     }),
+  },
+  watch: {
+    showDropdown(val) {
+     if (val) {
+        this.$nextTick(() => {
+          this.$refs.userSearch.focus();
+          this.inputIsFocused = true;
+          this.$refs.dropdown.focus();
+        });
+        // Add event listener on the window object to detect clicks outside the dropdown
+        window.addEventListener("mousedown", this.handleClickOutside);
+      } else {
+        // Remove the event listener when the dropdown is hidden
+        window.removeEventListener("mousedown", this.handleClickOutside);
+      }
+    },
+  },
+  methods: {
+    ...mapActions("users", [
+      "fetchUsers",
+      "setServerQuery",
+      "setShowDropDown",
+      "setMouseCoordinates",
+      "setServerQuery",
+    ]),
+    search(e) {
+      this.setServerQuery({
+        key: "search",
+        value: e.target.value,
+      });
+      clearTimeout(this.timeout);
+      const self = this;
+      this.timeout = setTimeout(function () {
+        // enter this block of code after 1 second
+        // handle stuff, call search API etc.
+        self.fetchUsers({
+          query: self.searchValue,
+        });
+      }, 1000);
+    },
+    handleAvatarClicked(e) {
+      // if(this.showUserDropDown){
+      //   this.setUserServerQuery({
+      //     key: 'search',
+      //     value: '',
+      //   })
+      //   this.resetSelectedUser();
+      //   return
+      // }
+
+      this.setShowDropDown(true);
+      this.setMouseCoordinates({
+        clientX: e.clientX,
+        clientY: e.clientY,
+      });
+    },
+    handleFocus() {
+      console.log("focused user dropdoen");
+    },
+    // handleBlur() {
+    //   if (!this.inputIsFocused) {
+    //     this.setShowDropDown(false);
+    //   }
+    //   console.log("blur");
+    // },
+    handleClickOutside(e) {
+      // Check if the clicked element is a child of the dropdown
+      if (
+        !this.$refs.dropdown.contains(e.target) &&
+        !this.$refs.userSearch.contains(e.target)
+      ) {
+        this.setShowDropDown(false);
+        this.setServerQuery({
+          key: 'search',
+          value: '',
+        });
+      }
+    },
   },
 };
 </script>
 
-<style lang="scss">
-.avatar-dropdown {
-  position: relative;
-}
-
-.avatar {
-  position: absolute;
-  top: 50%;
-  transform: translate(50%, -50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 100px;
-  background-color: #f0f0f0;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
+<style lang="scss" scoped>
 .dropdown {
-  width: 224px;
-  height: 279px;
+  transform: translate(-95%, 3%);
   position: absolute;
-  top: 100%;
-  right: 0;
+
   z-index: 1;
-  padding: 8px 0;
-  margin: 2px 0 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 11px 10px 13px 12px;
+  border-radius: 5px;
   box-shadow: 0px 8px 16px #00000040;
   background: #fff;
   opacity: 1;
+
+  &__content {
+    width: 224px;
+    height: 279px;
+    overflow-y: scroll;
+    margin: 4px;
+    padding: 0;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      background-color: #d8dbe2; // $gray-300;
+    }
+  }
+}
+
+.dropdown__header {
+  width: 100%;
+  height: 32px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 1;
 }
 
 .dropdown ul {

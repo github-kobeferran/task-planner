@@ -24,7 +24,7 @@
         />
       </svg>
     </div>
-    <div class="col-8 col-md-10 task-item__title-container">
+    <div class="col-8 col-md-9 col-lg-10 task-item__title-container">
       <span
         :class="{
           'task-item__title-container__title--done': task.is_done,
@@ -34,7 +34,16 @@
       >
     </div>
     <div class="col task-item__options-container d-flex">
-      <UserDropdown />
+      <div class="avatar-dropdown">
+        <div
+          class="avatar"
+          tabindex="0"
+          @click="handleAvatarClicked"
+        >
+          <img :src="avatarSrc" alt="Avatar" />
+        </div>
+      </div>
+      <!-- <UserDropdown :avatarImg="avatarSrc" /> -->
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 576 512"
@@ -73,6 +82,8 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
   props: {
     task: {
@@ -84,11 +95,48 @@ export default {
   data() {
     return {
       openDeleteDialog: false,
+      toggleAvatarDropdown: false,
     };
   },
+  computed: {
+    avatarSrc() {
+      if (!this.task || !this.task.assignee || !this.task.assignee.avatar) {
+        return "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
+        // https://www.macmillandictionary.com/external/slideshow/full/White_full.png
+      }
+      return this.task.assignee.avatar;
+    },
+    ...mapGetters("users", {
+      showUserDropDown: "getShowDropDown",
+    }),
+  },
   methods: {
+    ...mapActions("users", {
+      setShowDropDown: "setShowDropDown",
+      setUserServerQuery: "setServerQuery",
+      setUserMouseCoordinates: "setMouseCoordinates",
+      setSelectedUser: "setSelectedUser",
+      resetSelectedUser: "resetSelectedUser",
+    }),
     emitDelete() {
       this.$emit("delete", this.task);
+    },
+    handleAvatarClicked(e) {
+      // if(this.showUserDropDown){
+      //   this.setUserServerQuery({
+      //     key: 'search',
+      //     value: '',
+      //   })
+      //   this.resetSelectedUser();
+      //   return
+      // }
+
+      this.setShowDropDown(true);
+      this.setUserMouseCoordinates({
+        clientX: e.clientX,
+        clientY: e.clientY,
+      });
+      this.setSelectedUser(this.task.assignee)
     },
   },
 };
