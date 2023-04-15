@@ -61,9 +61,11 @@ export const mutations = {
   resetTask(state) {
     state.task = initialTask();
   },
-
   setServerQuery(state, { key, value }) {
     state.serverQuery[key] = value;
+  },
+  setTitle(state, value) {
+    state.task.title = value;
   },
 };
 
@@ -84,23 +86,9 @@ export const actions = {
   },
   async storeTask({ commit, state }, title) {
     try {
-      let sortValue = Math.max(
-        ...state.tasks.map((task) => {
-          if (!task.sort) {
-            return 0;
-          }
-
-          return task.sort;
-        })
-      );
-
-      if (!sortValue || sortValue === 0) {
-        sortValue = 1;
-      }
-
       const { data: newTask } = await this.$axios.post("/tasks", {
         title,
-        sort: ++sortValue,
+        sort: state.tasks.length,
       });
       if (newTask) {
         commit("addTask", newTask);
@@ -179,6 +167,7 @@ export const actions = {
 
       if (updatedTask) {
         commit("replaceTaskOnList", updatedTask);
+        commit("resetTask");
       }
     } catch (e) {
       console.error(e);
@@ -193,28 +182,20 @@ export const actions = {
   setServerQuery({ commit }, payload) {
     commit("setServerQuery", payload);
   },
-
-  async moveTask(
-    { commit, dispatch, state },
-    { droppedTaskID, draggedTaskID }
-  ) {
+  setTitle({ commit }, title) {
+    commit("setTitle", title);
+  },
+  moveTask({ commit, dispatch, state }, { droppedTaskID, draggedTaskID }) {
     const newIndex = state.tasks.findIndex((task) => task.id === droppedTaskID);
     const oldIndex = state.tasks.findIndex((task) => task.id === draggedTaskID);
-
-    const droppedTask = state.tasks.find((task) => task.id === droppedTaskID);
-    const draggedTask = state.tasks.find((task) => task.id === draggedTaskID);
-
     commit("moveTask", { oldIndex, newIndex });
 
-    dispatch("setTask", {
-      ...droppedTask,
-      sort: draggedTask.sort,
+    state.tasks.forEach(async (task, index) => {
+      dispatch("setTask", {
+        ...task,
+        sort: index,
+      });
+      await dispatch("updateTask");
     });
-    await dispatch("updateTask");
-    dispatch("setTask", {
-      ...draggedTask,
-      sort: droppedTask.sort,
-    });
-    await dispatch("updateTask");
   },
 };

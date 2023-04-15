@@ -1,0 +1,13 @@
+.hero-section {
+  color: $gray-900;
+
+  &__title {
+    @include font("Inter", 500, 40px, "left", 0, 1);
+  }
+
+  &__description {
+    @include font("Inter", 400, 18px, "center", 0, 1);
+    margin-bottom: 70px;
+    width: 350px;
+  }
+}

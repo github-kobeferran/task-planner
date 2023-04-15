@@ -1,12 +1,5 @@
 <template>
-  <li
-    class="list-group-item task-item d-flex my-2 drop-zone"
-    :draggable="true"
-    @dragstart="startDrag($event, task)"
-    @drop="onDrop($event, task.id)"
-    @dragover.prevent
-    @dragenter.prevent
-  >
+  <li class="list-group-item task-item d-flex my-2 drop-zone">
     <div class="col task-item__check-container">
       <svg
         class="task-item__check-container__icon"
@@ -31,8 +24,16 @@
         />
       </svg>
     </div>
-    <div class="col-8 col-md-9 col-lg-10 task-item__title-container">
+    <div
+      class="col-8 col-md-9 col-lg-10 task-item__title-container"
+      :draggable="true"
+      @dragstart="startDrag($event, task)"
+      @drop="onDrop($event, task.id)"
+      @dragover.prevent
+      @dragenter.prevent
+    >
       <span
+        @click.prevent="$emit('open-edit-dialog', task)"
         :class="{
           'task-item__title-container__title--done': task.is_done,
           'task-item__title-container__title': !task.is_done,
@@ -98,7 +99,7 @@ export default {
       required: true,
     },
   },
-  emits: ["mark", "delete"],
+  emits: ["mark", "delete", "open-edit-dialog"],
   data() {
     return {
       openDeleteDialog: false,
@@ -153,7 +154,7 @@ export default {
     },
     onDrop(evt, droppedTaskID) {
       const draggedTaskID = evt.dataTransfer.getData("draggedTaskID");
-      this.moveTask({droppedTaskID, draggedTaskID})
+      this.moveTask({ droppedTaskID, draggedTaskID });
     },
   },
 };

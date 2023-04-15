@@ -63,9 +63,11 @@
         :task="task"
         @delete="handleDelete"
         @mark="markTask"
+        @open-edit-dialog="handleOpenEditDialog"
       />
     </ul>
     <UserDropdown />
+    <EditDialog v-show="openEditDialog" @close="handleCloseEditDialog" />
     <TaskTitleInput
       :placeholder-prop="'Add a task'"
       :class-list="['mt-auto', 'mb-3']"
@@ -77,95 +79,105 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-    data() {
-        return {
-            filterBy: "all",
-            searchValue: "",
-            timeout: null,
-        };
+  data() {
+    return {
+      filterBy: "all",
+      searchValue: "",
+      timeout: null,
+      openEditDialog: false,
+    };
+  },
+  async fetch() {
+    await this.fetchTasks();
+    await this.fetchUsers();
+  },
+  computed: {
+    ...mapGetters("tasks", {
+      tasks: "getTasks",
+      serverQuery: "getServerQuery",
+    }),
+    filtered() {
+      switch (this.filterBy) {
+        case "important":
+          return this.tasks.filter((task) => task.is_important);
+        case "done":
+          return this.tasks.filter((task) => task.is_done);
+        case "all":
+        default:
+          return this.tasks;
+      }
     },
-    async fetch() {
-        await this.fetchTasks();
-        await this.fetchUsers();
+    importantCount() {
+      const length = this.tasks.filter((task) => task.is_important).length;
+      if (!length || length === 0) {
+        return "";
+      }
+      return length;
     },
-    computed: {
-        ...mapGetters("tasks", {
-            tasks: "getTasks",
-            serverQuery: "getServerQuery",
-        }),
-        filtered() {
-            switch (this.filterBy) {
-                case "important":
-                    return this.tasks.filter((task) => task.is_important);
-                case "done":
-                    return this.tasks.filter((task) => task.is_done);
-                case "all":
-                default:
-                    return this.tasks;
-            }
-        },
-        importantCount() {
-            const length = this.tasks.filter((task) => task.is_important).length;
-            if (!length || length === 0) {
-                return "";
-            }
-            return length;
-        },
-        doneCount() {
-            const length = this.tasks.filter((task) => task.is_done).length;
-            if (!length || length === 0) {
-                return "";
-            }
-            return length;
-        },
-
+    doneCount() {
+      const length = this.tasks.filter((task) => task.is_done).length;
+      if (!length || length === 0) {
+        return "";
+      }
+      return length;
     },
-    methods: {
-        ...mapActions("tasks", [
-            "fetchTasks",
-            "deleteTask",
-            "markAsDone",
-            "undoTask",
-            "markImportant",
-            "filterTasks",
-            "setServerQuery",
-        ]),
-        ...mapActions("users", ["fetchUsers"]),
-        changeFilter(filter) {
-            this.filterBy = filter;
-        },
-        search(e) {
-            this.setServerQuery({
-                key: "search",
-                value: e.target.value,
-            });
-            clearTimeout(this.timeout);
-            const self = this;
-            this.timeout = setTimeout(function () {
-                // enter this block of code after 1 second
-                // handle stuff, call search API etc.
-                self.fetchTasks({
-                    query: self.searchValue,
-                });
-            }, 1000);
-        },
-        markTask({ task, markAs }) {
-            switch (markAs) {
-                case "done":
-                    this.markAsDone(task);
-                    break;
-                case "undo":
-                    this.undoTask(task);
-                    break;
-                case "important":
-                    this.markImportant(task);
-                    break;
-            }
-        },
-        handleDelete(task) {
-            this.deleteTask(task);
-        },
+  },
+  methods: {
+    ...mapActions("tasks", [
+      "fetchTasks",
+      "deleteTask",
+      "markAsDone",
+      "undoTask",
+      "markImportant",
+      "filterTasks",
+      "setServerQuery",
+      "setTask",
+      "resetTask",
+    ]),
+    ...mapActions("users", ["fetchUsers"]),
+    changeFilter(filter) {
+      this.filterBy = filter;
     },
+    search(e) {
+      this.setServerQuery({
+        key: "search",
+        value: e.target.value,
+      });
+      clearTimeout(this.timeout);
+      const self = this;
+      this.timeout = setTimeout(function () {
+        // enter this block of code after 1 second
+        // handle stuff, call search API etc.
+        self.fetchTasks({
+          query: self.searchValue,
+        });
+      }, 1000);
+    },
+    markTask({ task, markAs }) {
+      switch (markAs) {
+        case "done":
+          this.markAsDone(task);
+          break;
+        case "undo":
+          this.undoTask(task);
+          break;
+        case "important":
+          this.markImportant(task);
+          break;
+      }
+    },
+    handleDelete(task) {
+      this.deleteTask(task);
+    },
+    handleOpenEditDialog(task) {
+      this.openEditDialog = true;
+      this.setTask(task)
+    },
+    handleCloseEditDialog(){
+      this.openEditDialog = false;
+      this.resetTask();
+    }
+  },
 };
 </script>
 
@@ -179,14 +191,14 @@ export default {
 .list-group {
   overflow-y: scroll;
 
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
 
-    &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-      background-color: #d8dbe2; // $gray-300;
-    }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #d8dbe2; // $gray-300;
+  }
 }
 </style>

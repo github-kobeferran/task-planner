@@ -8,17 +8,26 @@
       left: mouseCoordinates.clientX + 'px',
       top: mouseCoordinates.clientY + 'px',
     }"
-    @focus="handleFocus"
   >
-    <div class="dropdown__header">
+    <div class="dropdown__header position-relative">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 512 512"
+        class="dropdown__header__icon"
+      >
+        <path
+          d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+        />
+      </svg>
       <input
         ref="userSearch"
+        :value="serverQuery.search"
+        type="text"
+        class="dropdown__header__input"
+        placeholder="Search Team Member"
         @blur="inputIsFocused = false"
         @focus="inputIsFocused = true"
-        :value="serverQuery.search"
         @keyup="search"
-        type="text"
-        placeholder="Search Team Member"
       />
     </div>
 
@@ -27,9 +36,9 @@
         <li
           v-for="user in users"
           :key="user.id"
-          class="assignee-option--unselected"
+          class="assignee-option"
           :class="{
-            'bg-gray-400': currentAssigneeId == user.id,
+            'assignee-option--active': currentAssigneeId == user.id,
           }"
           @click="handleAssigneeSelect(user)"
         >
@@ -122,40 +131,19 @@ export default {
       clearTimeout(this.timeout);
       const self = this;
       this.timeout = setTimeout(function () {
-        // enter this block of code after 1 second
-        // handle stuff, call search API etc.
         self.fetchUsers({
           query: self.searchValue,
         });
       }, 300);
     },
     handleAvatarClicked(e) {
-      // if(this.showUserDropDown){
-      //   this.setUserServerQuery({
-      //     key: 'search',
-      //     value: '',
-      //   })
-      //   this.resetSelectedUser();
-      //   return
-      // }
-
       this.setShowDropDown(true);
       this.setMouseCoordinates({
         clientX: e.clientX,
         clientY: e.clientY,
       });
     },
-    handleFocus() {
-      console.log("focused user dropdoen");
-    },
-    // handleBlur() {
-    //   if (!this.inputIsFocused) {
-    //     this.setShowDropDown(false);
-    //   }
-    //   console.log("blur");
-    // },
     handleClickOutside(e) {
-      // Check if the clicked element is a child of the dropdown
       if (
         !this.$refs.dropdown.contains(e.target) &&
         !this.$refs.userSearch.contains(e.target)
@@ -165,91 +153,9 @@ export default {
           key: "search",
           value: "",
         });
+        this.fetchUsers()
       }
     },
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.dropdown {
-  transform: translate(-95%, 3%);
-  position: absolute;
-
-  z-index: 1;
-  padding: 11px 10px 13px 12px;
-  border-radius: 5px;
-  box-shadow: 0px 8px 16px #00000040;
-  background: #fff;
-  opacity: 1;
-
-  &__content {
-    width: 224px;
-    height: 279px;
-    overflow-y: scroll;
-    margin: 4px;
-    padding: 0;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-      background-color: #d8dbe2; // $gray-300;
-    }
-  }
-}
-
-.dropdown__header {
-  width: 100%;
-  height: 32px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  z-index: 1;
-}
-
-.dropdown ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dropdown li {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  cursor: pointer;
-}
-
-.user-avatar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  margin-right: 8px;
-  overflow: hidden;
-}
-
-.user-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-name {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.assignee-option--unselected {
-  &:hover {
-    background: #c4bcbc;
-  }
-}
-</style>
