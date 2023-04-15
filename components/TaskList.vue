@@ -66,7 +66,9 @@
         @open-edit-dialog="handleOpenEditDialog"
       />
     </TransitionGroup>
-    <p v-if="filtered.length < 1" class="text-center text-gray-400"><em>Nothing here</em></p>
+    <p v-if="filtered.length < 1" class="text-center text-gray-400">
+      <em>Nothing here</em>
+    </p>
 
     <UserDropdown />
     <EditDialog v-show="openEditDialog" @close="handleCloseEditDialog" />
@@ -110,6 +112,10 @@ export default {
       }
     },
     importantCount() {
+      if (!this.tasks) {
+        return "";
+      }
+
       const length = this.tasks.filter((task) => task.is_important).length;
       if (!length || length === 0) {
         return "";
@@ -117,6 +123,9 @@ export default {
       return length;
     },
     doneCount() {
+      if (!this.tasks) {
+        return "";
+      }
       const length = this.tasks.filter((task) => task.is_done).length;
       if (!length || length === 0) {
         return "";
