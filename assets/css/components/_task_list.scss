@@ -1,8 +1,13 @@
 .task-list {
   color: $gray-900;
-
   &__title {
     @include font("Inter", 500, 32px, "left", 0, 1);
+    color: $gray-900;
+
+    &:hover {
+      color: $gray-900;
+      text-decoration: none;
+    }
   }
 }
 

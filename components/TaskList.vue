@@ -2,7 +2,8 @@
   <div class="task-list container d-flex flex-column p-0">
     <div class="row mt-5">
       <div class="col">
-        <h1 class="task-list__title">Task Planner</h1>
+        <NuxtLink to="/" class="task-list__title"> Task Planner </NuxtLink>
+        <!-- <h1 class="task-list__title">Task Planner</h1> -->
       </div>
       <div class="col-4">
         <div class="d-flex flex-row-reverse">
@@ -55,8 +56,7 @@
         @keyup="search"
       />
     </div>
-
-    <ul class="list-group my-1">
+    <TransitionGroup name="list" class="list-group my-1" tag="ul">
       <TaskItem
         v-for="task in filtered"
         :key="task.id"
@@ -65,7 +65,9 @@
         @mark="markTask"
         @open-edit-dialog="handleOpenEditDialog"
       />
-    </ul>
+    </TransitionGroup>
+    <p v-if="filtered.length < 1" class="text-center text-gray-400"><em>Nothing here</em></p>
+
     <UserDropdown />
     <EditDialog v-show="openEditDialog" @close="handleCloseEditDialog" />
     <TaskTitleInput
@@ -171,12 +173,12 @@ export default {
     },
     handleOpenEditDialog(task) {
       this.openEditDialog = true;
-      this.setTask(task)
+      this.setTask(task);
     },
-    handleCloseEditDialog(){
+    handleCloseEditDialog() {
       this.openEditDialog = false;
       this.resetTask();
-    }
+    },
   },
 };
 </script>
@@ -200,5 +202,23 @@ export default {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     background-color: #d8dbe2; // $gray-300;
   }
+}
+
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>

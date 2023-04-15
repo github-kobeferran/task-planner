@@ -128,18 +128,10 @@ export default {
       resetSelectedUser: "resetSelectedUser",
     }),
     emitDelete() {
+      this.openDeleteDialog = false
       this.$emit("delete", this.task);
     },
     handleAvatarClicked(e, task) {
-      // if(this.showUserDropDown){
-      //   this.setUserServerQuery({
-      //     key: 'search',
-      //     value: '',
-      //   })
-      //   this.resetSelectedUser();
-      //   return
-      // }
-
       this.setShowDropDown(true);
       this.setUserMouseCoordinates({
         clientX: e.clientX,

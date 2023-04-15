@@ -3,15 +3,16 @@
     <div class="dialog dialog-lg">
       <h5 class="dialog__title text-left">Edit Task</h5>
       <div class="dialog__content">
-        <input type="text" :value="task.title" @input="handleInput" @keypress.enter.stop="save" />
+        <input
+          type="text"
+          :value="task.title"
+          @input="handleInput"
+          @keypress.enter.stop="save"
+        />
       </div>
       <div class="dialog__footer">
-        <button class="dialog__confirm-button" @click="save">
-          Save
-        </button>
-        <button class="dialog__cancel-button" @click="cancel">
-          Cancel
-        </button>
+        <button class="dialog__confirm-button" @click="save">Save</button>
+        <button class="dialog__cancel-button" @click="cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -21,11 +22,11 @@
 import { mapActions, mapGetters } from "vuex";
 
 export default {
-  emits: [ "close"],
-  data(){
+  emits: ["close"],
+  data() {
     return {
-      inputValue: '',
-    }
+      inputValue: "",
+    };
   },
   computed: {
     ...mapGetters("tasks", {
@@ -41,19 +42,22 @@ export default {
         return;
       }
 
-      this.inputValue = value
+      this.inputValue = value;
     },
     async save() {
-      // this.$emit("confirm");
+      if(!this.inputValue){
+        this.inputValue = this.task.title
+      }
+
       this.setTitle(this.inputValue);
 
       await this.updateTask();
-      this.inputValue = ''
-      this.$emit('close')
+      this.inputValue = "";
+      this.$emit("close");
     },
     cancel() {
       this.$emit("close");
-      this.inputValue = ''
+      this.inputValue = "";
     },
   },
 };

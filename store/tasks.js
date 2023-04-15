@@ -4,6 +4,7 @@ const initialTask = () => ({
   is_done: null,
   is_important: null,
   sort: null,
+  timeID: null,
 });
 
 export const state = () => ({
@@ -188,14 +189,19 @@ export const actions = {
   moveTask({ commit, dispatch, state }, { droppedTaskID, draggedTaskID }) {
     const newIndex = state.tasks.findIndex((task) => task.id === droppedTaskID);
     const oldIndex = state.tasks.findIndex((task) => task.id === draggedTaskID);
+
     commit("moveTask", { oldIndex, newIndex });
 
-    state.tasks.forEach(async (task, index) => {
-      dispatch("setTask", {
-        ...task,
-        sort: index,
+    clearTimeout(state.timeID);
+
+    state.timeID = setTimeout(() => {
+      state.tasks.forEach(async (task, index) => {
+        dispatch("setTask", {
+          ...task,
+          sort: index,
+        });
+        await dispatch("updateTask");
       });
-      await dispatch("updateTask");
-    });
+    }, 2000);
   },
 };

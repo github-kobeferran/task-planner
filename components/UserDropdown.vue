@@ -34,7 +34,7 @@
     <div class="dropdown__content">
       <ul>
         <li
-          v-for="user in users"
+          v-for="user in usersArranged"
           :key="user.id"
           class="assignee-option"
           :class="{
@@ -70,13 +70,6 @@ export default {
     };
   },
   computed: {
-    currentAssigneeId() {
-      if (!this.task || !this.task.assignee) {
-        return null;
-      }
-
-      return this.task.assignee.id;
-    },
     ...mapGetters("tasks", {
       task: "getTask",
     }),
@@ -87,6 +80,32 @@ export default {
       mouseCoordinates: "getMouseCoordinates",
       serverQuery: "getServerQuery",
     }),
+    currentAssigneeId() {
+      if (!this.task || !this.task.assignee) {
+        return null;
+      }
+
+      return this.task.assignee.id;
+    },
+    usersArranged() {
+      if (!this.currentAssigneeId) {
+        return this.users;
+      }
+
+      const index = this.users.findIndex(
+        (user) => user.id === this.currentAssigneeId
+      );
+
+      const find = this.users.find(
+        (user) => user.id === this.currentAssigneeId
+      );
+
+      const userList = JSON.parse(JSON.stringify(this.users));
+
+      userList.splice(index, 1);
+      userList.unshift(find);
+      return userList;
+    },
   },
   watch: {
     showDropdown(val) {
@@ -153,7 +172,7 @@ export default {
           key: "search",
           value: "",
         });
-        this.fetchUsers()
+        this.fetchUsers();
       }
     },
   },

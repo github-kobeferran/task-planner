@@ -3,38 +3,58 @@
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 512 512"
-      class="task-title-input--icon"
+      class="task-title-input__icon"
+      :class="{
+        'task-title-input__icon--plus': !inputFocused,
+        'task-title-input__icon--circle': inputFocused,
+      }"
     >
-      <path
-        v-if="!inputFocused"
-        d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
-      />
-      <path
-        v-else
-        d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"
-      />
+      <Transition name="fade" mode="out-in">
+        <path
+          v-if="!inputFocused"
+          key="plus"
+          d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
+        />
+        <path
+          v-else
+          key="circle"
+          d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"
+        />
+      </Transition>
     </svg>
 
     <input
       ref="task-title-input"
       type="text"
       class="task-title-input__input"
-      :placeholder="placeholderText"
       v-model="titleInputValue"
+      :placeholder="placeholderText"
       @keypress.enter="submit"
       @focus="onInputFocus"
       @blur="onInputBlur"
     />
-    <p class="task-title-input__enter-prompt">
-      Press
-      <span
-        :class="{
-          'task-title-input__enter-prompt--enter': !inputFocused,
-        }"
-        >enter</span
-      >
-      to add task
-    </p>
+    <div class="d-flex justify-content-between">
+      <p class="task-title-input__enter-prompt">
+        Press
+        <span
+          :class="{
+            'task-title-input__enter-prompt--enter': !inputFocused,
+          }"
+          >enter</span
+        >
+        to add task
+      </p>
+      <Transition name="link-to-tasks">
+        <p v-if="showLinkToTasks">
+          <nuxt-link
+            v-show="showLink"
+            to="/tasks"
+            class="task-title-input__enter-prompt tasks-link"
+            >see tasks</nuxt-link
+          >
+        </p>
+      </Transition>
+    </div>
   </div>
 </template>
 
@@ -45,6 +65,7 @@ export default {
   props: {
     placeholderProp: {
       type: String,
+      default: null,
       required: false,
     },
     classList: {
@@ -52,11 +73,16 @@ export default {
       default: () => [],
       required: false,
     },
+    showLinkToTasks: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       inputFocused: false,
       titleInputValue: "",
+      showLink: false,
     };
   },
   computed: {
@@ -84,6 +110,11 @@ export default {
   },
   mounted() {
     window.addEventListener("keyup", this.handleKeyUp);
+    if (this.showLinkToTasks) {
+      setTimeout(() => {
+        this.showLink = true;
+      }, 3000);
+    }
   },
   beforeDestroy() {
     window.removeEventListener("keyup", this.handleKeyUp);
@@ -99,7 +130,9 @@ export default {
       if (res) {
         this.resetTask();
         this.$router.push("/tasks");
-        this.titleInputValue = "";
+        setTimeout(() => {
+          this.titleInputValue = "";
+        }, 600);
       }
     },
     onInputFocus() {
@@ -123,3 +156,27 @@ export default {
   },
 };
 </script>
+
+<style>
+.fade-enter-active {
+  transition: opacity 0.67s ease;
+}
+.fade-leave-active {
+  opacity: 0;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.link-to-tasks-enter-active,
+.link-to-tasks-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.link-to-tasks-enter-from,
+.link-to-tasks-leave-to {
+  opacity: 0;
+}
+</style>
